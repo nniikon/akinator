@@ -1,0 +1,6 @@
+DEF_AKINATOR_ERR(NO,             "no error occurred"             )
+DEF_AKINATOR_ERR(NULLPTR_PASSED, "nullptr passed to the function")
+DEF_AKINATOR_ERR(BAD_MEM_ALLOC,  "failed to allocate memory"     )
+DEF_AKINATOR_ERR(UNEXPECTED,     "unexpected error"              )
+DEF_AKINATOR_ERR(TREE,           "tree error"                    )
+DEF_AKINATOR_ERR(BAD_FGETS,      "fget[w]s() error"              )
