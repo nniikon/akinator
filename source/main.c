@@ -5,6 +5,10 @@
 
 #include "../include/akinator.h"
 
+#include "../include/akinator_dump.h" // FIXME: delete
+#include "../include/akinator_saveLoad.h" // FIXME: delete
+
+
 const char* DATABASE_PATH  = "db.akt";
 const char* DUMP_FILE_PATH = "dump.html";
 
@@ -24,7 +28,10 @@ int main()
 
     akinatorCtor    (&akin, DATABASE_PATH, dumpFile);
     akinatorQuestion(&akin, akin.tree.rootBranch);
-    akinatorDtor    (&akin);
+	akinatorQuestion(&akin, akin.tree.rootBranch);
+    akinatorGenPng(&akin);
+	akinatorSaveToFile(&akin);
 
+    akinatorDtor    (&akin);
     fclose(dumpFile);
 }

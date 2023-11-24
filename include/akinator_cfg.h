@@ -3,8 +3,10 @@
 
 #include "wchar.h"
 
-static const size_t AKINATOR_MAX_WORD_SIZE = 20;
+static const size_t AKINATOR_MAX_WORD_SIZE = 50;
 
-const wchar_t AKINATOR_UNKNOWN_OBJ_NAME[] = L"Непонятно что";
+static const wchar_t AKINATOR_UNKNOWN_OBJ_NAME[] = L"Непонятно что";
+
+static const wchar_t AKINATOR_FILE_NIL_NAME[] = L"nil";
 
 #endif // AKINATOR_CFG_H_

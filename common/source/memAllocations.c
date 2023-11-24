@@ -9,27 +9,28 @@ void* dynArrCalloc(void* arr, unsigned int* capacity,
 {
     if (*capacity < *freeIndex)
     {
-        fprintf(stderr, "arr is NULL\n");
         return NULL;
     }
 
     if (*freeIndex == *capacity)
     {
-        unsigned int newCapacity = 0;
+        // FIXME: fuck this idk it's unfixable
+        return NULL;
+        // unsigned int newCapacity = 0;
 
-        if (*capacity == 0)
-            newCapacity = DYN_ARR_DEFAULT_CAPACITY;
-        else
-            newCapacity = *capacity * DYN_ARR_CAPACITY_GROWTH_FACTOR;
+        // if (*capacity == 0)
+        //     newCapacity = DYN_ARR_DEFAULT_CAPACITY;
+        // else
+        //     newCapacity = *capacity * DYN_ARR_CAPACITY_GROWTH_FACTOR;
 
-        void* tempArr = realloc(arr, elemSize * newCapacity);
-        if (tempArr == NULL)
-            return NULL;
-        arr = tempArr;
+        // void* tempArr = realloc(arr, elemSize * newCapacity);
+        // if (tempArr == NULL)
+        //     return NULL;
+        // arr = tempArr;
 
-        memset((void*)((size_t)arr + elemSize * *capacity), 0,
-                elemSize * (newCapacity - *capacity));
-        *capacity = newCapacity;
+        // memset((void*)((size_t)arr + elemSize * *capacity), 0,
+        //         elemSize * (newCapacity - *capacity));
+        // *capacity = newCapacity;
     }
 
     return (void*)((size_t)arr + elemSize * (*freeIndex)++);

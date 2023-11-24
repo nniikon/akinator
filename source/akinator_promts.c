@@ -25,6 +25,7 @@ void akinatorSay(const wchar_t input[])
     system(cmdBuffer);
 }
 
+
 AkinatorOptions akinatorGetMode()
 {
     akinatorPrintAndSay(L"Привет пользователь!\n"
@@ -46,6 +47,7 @@ AkinatorOptions akinatorGetMode()
     }
     return AKIN_OPT_ERROR;
 }
+
 
 int akinatorGetOption(const wchar_t cAllowed[])
 {

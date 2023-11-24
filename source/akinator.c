@@ -53,8 +53,11 @@ inline static wchar_t* wordCalloc(Akinator* akin)
 
 AkinatorError akinatorCtor(Akinator* akin, const char* database, FILE* dumpFile)
 {
+    DUMP_FUNC_START(akin->dumpFile);
     if (akin == NULL || database == NULL)
         AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_NULLPTR_PASSED);
+
+    memset(akin, 0, sizeof(Akinator));
 
     TreeError treeErr = treeCtor(&akin->tree, dumpFile);
     if (treeErr != TREE_ERROR_NO)
@@ -63,20 +66,13 @@ AkinatorError akinatorCtor(Akinator* akin, const char* database, FILE* dumpFile)
     akin->databasePath = database;
     akin->dumpFile     = dumpFile;
 
-    akin->capacity = 0;
-    akin->freeIndex = 0;
-    akin->nodeBuffer = 0;
-    akin->wordBuffer = 0;
-    akin->wordCapacity = 0;
-    akin->wordFreeIndex = 0;
-
     akin->nodeBuffer = (AkinatorNode*) dynArrCtor(&akin->capacity, 
-                                                    sizeof(AkinatorNode));
+                                    sizeof(AkinatorNode));
     if (akin->nodeBuffer == NULL)
         goto NodeBufferFailure;
 
     akin->wordBuffer = (wchar_t*) dynArrCtor(&akin->wordCapacity,
-                                     sizeof(wchar_t) * AKINATOR_MAX_WORD_SIZE);
+                                    sizeof(wchar_t) * AKINATOR_MAX_WORD_SIZE);
     if (akin->wordBuffer == NULL)
         goto WordBufferFailure;
 
@@ -87,6 +83,7 @@ AkinatorError akinatorCtor(Akinator* akin, const char* database, FILE* dumpFile)
     akin->tree.rootBranch->data->type = AKINATOR_NODE_OBJ;
     akin->tree.rootBranch->data->str  = AKINATOR_UNKNOWN_OBJ_NAME;
 
+    DUMP_FUNC_SUCCESS(akin->dumpFile);
     return AKINATOR_ERR_NO;
 
     NodeCallocFailure:
@@ -120,7 +117,7 @@ AkinatorError akinatorDtor(Akinator* akin)
 }
 
 
-static int akinatorAskQuestion(TreeNode* node, wchar_t* question)
+static int akinatorAskQuestion(TreeNode* node, const wchar_t question[])
 {
     akinatorPrintAndSay(question);
     akinatorPrintAndSay(node->data->str);
@@ -154,6 +151,7 @@ static void akinatorLose()
 // function2: change the tree.
 static AkinatorError akinatorVictory(Akinator* akin, TreeNode* node)
 {
+    DUMP_FUNC_START(akin->dumpFile);
 	assert(node);
 	if (node == NULL)
 		AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_NULLPTR_PASSED);
@@ -190,6 +188,9 @@ static AkinatorError akinatorVictory(Akinator* akin, TreeNode* node)
         AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_BAD_FGETS);
     }
 
+    newObj[AKINATOR_MAX_WORD_SIZE - 1] = L'\n';
+    newQuestion[AKINATOR_MAX_WORD_SIZE - 1] = L'\n';
+
     assert(wcsrchr(newObj,      '\n'));
     assert(wcsrchr(newQuestion, '\n'));
 
@@ -225,7 +226,7 @@ TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node)
             }
 			else
             {
-				akinatorLose(&node->data);
+				akinatorLose();
                 return NULL;
             }
 			break;

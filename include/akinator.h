@@ -12,7 +12,10 @@
 typedef struct
 {
     Tree tree;
+
     FILE* dumpFile;
+    unsigned int dumpIndex;
+
     const char* databasePath;
 
 	AkinatorNode* nodeBuffer;
@@ -21,7 +24,7 @@ typedef struct
 
 	wchar_t* wordBuffer;
 	unsigned int wordCapacity;
-	unsigned int wordFreeIndex;	
+	unsigned int wordFreeIndex;
 } Akinator;
 
 typedef enum
