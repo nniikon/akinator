@@ -3,7 +3,7 @@
 
 #include "akinator.h"
 
-void akinatorGenPng(Akinator* akin);
+AkinatorError akinatorGenPng(Akinator* akin);
 
 void akinatorMakeLogdir();
 

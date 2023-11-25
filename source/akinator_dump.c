@@ -7,13 +7,22 @@
 
 #include "../include/akinator_dump_cfg.h"
 
-#define BUFFER_SIZE 20
+#define BUFFER_SIZE 50
 
+// Should somehow return error...
 void akinatorMakeLogdir()
 {
     char cmdBuffer[BUFFER_SIZE] = {};
     snprintf(cmdBuffer, BUFFER_SIZE, "mkdir %s -p", AKINATOR_LOGS_FOLDER_NAME);
 
+    system(cmdBuffer);
+}
+
+static void akinsatorCompiteDot(Akinator* akin)
+{
+    char cmdBuffer[BUFFER_SIZE] = {};
+    snprintf(cmdBuffer, BUFFER_SIZE, "dot " AKINATOR_DOT_FILE_MASK\
+                 " -Tpng -o " AKINATOR_PNG_OUTPUT_MASK, akin->dumpIndex, akin->dumpIndex);
     system(cmdBuffer);
 }
 
@@ -57,13 +66,13 @@ static void akinatorPrintNodes(TreeNode* node, FILE* dotFile)
 }
 
 
-void akinatorGenPng(Akinator* akin)
+AkinatorError akinatorGenPng(Akinator* akin)
 {
     akinatorMakeLogdir();
     if (akin == NULL)
-        return;
+        AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_NULLPTR_PASSED);
     if (akin->dumpFile == NULL)
-        return;
+        AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_NULLPTR_PASSED);
 
     char fileBuffer[BUFFER_SIZE] = {};
     snprintf(fileBuffer, BUFFER_SIZE, AKINATOR_DOT_FILE_MASK, akin->dumpIndex);
@@ -71,9 +80,8 @@ void akinatorGenPng(Akinator* akin)
     FILE* dotFile = fopen(fileBuffer, "w");
     if (dotFile == NULL)
     {
-        DUMP(akin->dumpFile, "Unable to open %s", fileBuffer);
         fclose(dotFile);
-        return;
+        AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_OPEN_FILE);
     }
     log(L"digraph G{\n"
         L"rankdir = TB;\n"
@@ -82,4 +90,9 @@ void akinatorGenPng(Akinator* akin)
     log(L"}\n");
 
     fclose(dotFile);
+    akinsatorCompiteDot(akin);
+
+    akin->dumpIndex++;
+
+    return AKINATOR_ERR_NO;
 }

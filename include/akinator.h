@@ -45,7 +45,7 @@ AkinatorError akinatorDtor(Akinator* akin);
 
 const char* akinatorGetErrorMsg(AkinatorError err);
 
-TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node);
+TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node, AkinatorError* err);
 
 AkinatorNode* nodeCalloc(Akinator* akin);
 

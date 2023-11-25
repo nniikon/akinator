@@ -227,9 +227,11 @@ static AkinatorError akinatorVictory(Akinator* akin, TreeNode* node)
 
 
 // FIXME: add error-checks
-TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node)
+TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node, AkinatorError* err)
 {
-	if (node == NULL)
+    if (*err != AKINATOR_ERR_NO)
+        return NULL;
+    if (node == NULL)
 		return NULL;
 
 	switch (node->data->type)
@@ -237,7 +239,7 @@ TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node)
 		case AKINATOR_NODE_OBJ:
 			if (akinatorAskQuestion(node, L"Вы загадали ") == 0)
             {
-				akinatorVictory(akin, node); //FIXME should return error
+				*err = akinatorVictory(akin, node);
                 return NULL;
             }
 			else
@@ -248,9 +250,9 @@ TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node)
 			break;
 		case AKINATOR_NODE_QUESTION:
 			if (akinatorAskQuestion(node, L"Ваш персонаж ") == 0)
-				return akinatorQuestion(akin, node->rightBranch);
+				return akinatorQuestion(akin, node->rightBranch, err);
 			else
-				return akinatorQuestion(akin, node->leftBranch);
+				return akinatorQuestion(akin, node->leftBranch, err);
 		default:
 			assert(0);
 			return NULL;

@@ -13,7 +13,6 @@ static void akinatorSave_recursive(TreeNode* node, FILE* file);
 static TreeNode* akinatorLoad_recursive(Akinator* akin, Tree* tree,
                                             wchar_t** text, AkinatorError* err);
 
-// FIXME: add better error handling.
 AkinatorError akinatorSaveToFile(Akinator* akin)
 {
 	assert(akin);
@@ -44,7 +43,7 @@ static int getFileSize(const char* fileName, size_t* size)
     }
 
     *size = (size_t) bf.st_size;
-    return -1;
+    return 0;
 }
 
 
@@ -69,7 +68,8 @@ AkinatorError akinatorLoad(Akinator* akin)
 {
     // its temporary
     size_t size = 0;
-    getFileSize(akin->databasePath, &size);
+    if (getFileSize(akin->databasePath, &size) == -1)
+        AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_STAT);
 
     wchar_t* buffer = (wchar_t*) calloc(size + 1, sizeof(wchar_t));
     if (buffer == NULL)
@@ -78,10 +78,14 @@ AkinatorError akinatorLoad(Akinator* akin)
 
 	FILE* dbFile = fopen(akin->databasePath, "r");
 	if (dbFile == NULL)
+    {
+        free(buffer);
         AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_OPEN_FILE);
+    }
 
     if (fgetws(buffer, (int) size, dbFile) == NULL)
     {
+        free(buffer);
         fclose(dbFile);
         AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_BAD_FGETS);
     }
