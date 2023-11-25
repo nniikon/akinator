@@ -4,10 +4,13 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <wctype.h>
+
 
 #define OUTPUT_BUFFER_SIZE 512
 #define OUTPUT_COMMAND_SIZE 50
 #define  INPUT_BUFFER_SIZE 32
+
 
 void akinatorPrintAndSay(const wchar_t input[])
 {
@@ -26,8 +29,13 @@ void akinatorSay(const wchar_t input[])
     //system(cmdBuffer);
 }
 
+inline static AkinatorOptions convertCharToOption(const char input)
+{
+    return ((AkinatorOptions) (input - (int)'0'));
+}
 
-AkinatorOptions akinatorGetMode()
+
+AkinatorOptions akinatorGetMode(AkinatorError* err)
 {
     akinatorPrintAndSay(L"Что вы от меня хотите?\n");
     int input = -1;
@@ -39,9 +47,13 @@ AkinatorOptions akinatorGetMode()
                 L"[4] Показать дерево\n"
                 L"[5] Выйти и сохранить\n"
                 L"[6] Выйти без сохранения\n");
-        input = akinatorGetOption(L"123456");
+        input = akinatorGetOption(L"123456", err);
+
+        if (*err != AKINATOR_ERR_NO)
+            return AKIN_OPT_ERROR;
+
         if (input != -1)
-            return ((AkinatorOptions) (input - (int)'0'));
+            return convertCharToOption(input);
         akinatorPrintAndSay(L"Неверный ввод");
         wprintf            (L", попробуйте еще раз.\n");
     }
@@ -49,20 +61,39 @@ AkinatorOptions akinatorGetMode()
 }
 
 
-int akinatorGetOption(const wchar_t cAllowed[])
+static wchar_t* cutUnnecessarySpace(wchar_t* input)
+{
+    while (iswspace(input[0]))
+        input++;
+
+    wchar_t* inputPtr = input;
+    while (!iswspace(inputPtr[0]))
+        inputPtr++;
+    inputPtr[0] = L'\0';
+    return input;
+}
+
+
+int akinatorGetOption(const wchar_t cAllowed[], AkinatorError* err)
 {
     wchar_t inputBuffer[INPUT_BUFFER_SIZE] = {};
     if (fgetws(inputBuffer, sizeof(inputBuffer), stdin) == NULL)
     {
         fwprintf(stderr, L"FUCK YOU FGETS!\n");
+        *err = AKINATOR_ERR_BAD_FGETS;
         return -1;
     }
+
+
     int returnValue = inputBuffer[0];
 
-    if (inputBuffer[1] != L'\n')
+    if (inputBuffer[1] != L'\0')
         return -1;
+
     if (wcsrchr(cAllowed, inputBuffer[0]) == NULL)
         return -1;
+
+    *err = AKINATOR_ERR_NO;
     return returnValue;
 }
 
@@ -71,6 +102,7 @@ void akinatorGoodbye()
 {
     akinatorPrintAndSay(L"Хорошего дня!\n");
 }
+
 
 void akinatorError()
 {

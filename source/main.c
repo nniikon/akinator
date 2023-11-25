@@ -5,9 +5,10 @@
 
 #include "../include/akinator.h"
 
-#include "../include/akinator_dump.h" // FIXME: delete
-#include "../include/akinator_saveLoad.h" // FIXME: delete
 #include "../include/akinator_definition.h"
+#include "../include/akinator_dump.h"
+#include "../include/akinator_promts.h"
+#include "../include/akinator_saveLoad.h"
 
 // FIXME: add cmd args.
 const char* AKINATOR_DATABASE_PATH  = "db.akt";
@@ -59,7 +60,12 @@ int main()
     int gameOver = 0;
     while (!gameOver)
     {
-        opt = akinatorGetMode();
+        opt = akinatorGetMode(&err);
+        if (err != AKINATOR_ERR_NO)
+        {
+            fprintf(dumpFile, "%s\n", akinatorGetErrorMsg(err));
+            break;
+        }
         switch (opt)
         {
             case AKIN_OPT_GUESS:

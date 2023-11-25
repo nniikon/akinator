@@ -61,13 +61,12 @@ static void akinatorSave_recursive(TreeNode* node, FILE* file)
 	fwprintf(file, L"<%ls> ", node->data->str);
 	akinatorSave_recursive(node-> leftBranch, file);
 	akinatorSave_recursive(node->rightBranch, file);
-	
+
 	fwprintf(file, L") ");
 }
 
 AkinatorError akinatorLoad(Akinator* akin)
 {
-    // its temporary
     size_t size = 0;
     if (getFileSize(akin->databasePath, &size) == -1)
         AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_STAT);
@@ -84,6 +83,8 @@ AkinatorError akinatorLoad(Akinator* akin)
         AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_OPEN_FILE);
     }
 
+    // Fwrite is better, but i don't know                                                                  (and won't want to know)
+    //                  how to make it work with wchat_t
     if (fgetws(buffer, (int) size, dbFile) == NULL)
     {
         free(buffer);

@@ -4,6 +4,7 @@
 
 #include "../include/akinator_tree_cfg.h"
 #include "../include/akinator_cfg.h"
+#include "../include/akinator_promts.h"
 
 
 #define AKINATOR_DUMP_RETURN_TREE_ERROR(err)                                  \
@@ -146,7 +147,8 @@ AkinatorError akinatorDtor(Akinator* akin)
 }
 
 
-static int akinatorAskQuestion(TreeNode* node, const wchar_t question[])
+static int akinatorAskQuestion(Akinator* akin, TreeNode* node, 
+                                const wchar_t question[], AkinatorError* err)
 {
     akinatorPrintAndSay(question);
     akinatorPrintAndSay(node->data->str);
@@ -157,7 +159,9 @@ static int akinatorAskQuestion(TreeNode* node, const wchar_t question[])
         wprintf(L"[1] Да \n"
                 L"[2] Нет\n");
 
-        input = (char) akinatorGetOption(L"12");
+        input = (char) akinatorGetOption(L"12", err);
+        if (*err != AKINATOR_ERR_NO)
+            AKINATOR_DUMP_RETURN_ERROR(*err);
 
         if (input == '1') return 1;
         if (input == '2') return 0;
@@ -165,7 +169,7 @@ static int akinatorAskQuestion(TreeNode* node, const wchar_t question[])
         akinatorPrintAndSay(L"Неверный ввод");
         wprintf            (L", попробуйте еще раз.\n");
     }
-    return -1;
+    AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_UNEXPECTED);
 }
 
 
@@ -252,19 +256,21 @@ TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node, AkinatorError* err)
 	switch (node->data->type)
 	{
 		case AKINATOR_NODE_OBJ:
-			if (akinatorAskQuestion(node, L"Вы загадали ") == 0)
+			if (akinatorAskQuestion(akin, node, L"Вы загадали ", err) == 0)
             {
-				*err = akinatorVictory(akin, node);
+                if (*err != AKINATOR_ERR_NO)
+				    *err = akinatorVictory(akin, node);
                 return NULL;
             }
 			else
             {
-				akinatorLose();
+                if (*err != AKINATOR_ERR_NO)
+				    akinatorLose();
                 return NULL;
             }
 			break;
 		case AKINATOR_NODE_QUESTION:
-			if (akinatorAskQuestion(node, L"Ваш персонаж ") == 0)
+			if (akinatorAskQuestion(akin, node, L"Ваш персонаж ", err) == 0)
 				return akinatorQuestion(akin, node->rightBranch, err);
 			else
 				return akinatorQuestion(akin, node->leftBranch, err);

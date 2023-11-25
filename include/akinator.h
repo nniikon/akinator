@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <wchar.h>
 
-#include "akinator_promts.h"
 #include "akinator_stack.h"
 #include "../binaryTree/tree_include/tree.h"
 #include "../common/include/memAllocations.h"

@@ -2,6 +2,7 @@
 #define AKINATOR_PROMTS_H_
 
 #include <wchar.h>
+#include "../include/akinator.h"
 
 typedef enum
 {
@@ -12,14 +13,13 @@ typedef enum
     AKIN_OPT_DUMP        = 4,
     AKIN_OPT_SAVE_QUIT   = 5,
     AKIN_OPT_FORCE_QUIT  = 6,
-} AkinatorOptions;  
+} AkinatorOptions;
 
-AkinatorOptions akinatorGetMode();
+AkinatorOptions akinatorGetMode(AkinatorError* err);
 
-int akinatorGetOption(const wchar_t cAllowed[]);
+int akinatorGetOption(const wchar_t cAllowed[], AkinatorError* err);
 
 void akinatorSay        (const wchar_t input[]);
-
 void akinatorPrintAndSay(const wchar_t input[]);
 
 void akinatorGoodbye();

@@ -1,6 +1,7 @@
 #include "../include/akinator_definition.h"
 
 #include <assert.h>
+#include "../include/akinator_promts.h"
 #include "../include/akinator_cfg.h"
 
 static int akinatorPushDefinition_recursive(Akinator* akin, const wchar_t* name,
