@@ -22,4 +22,7 @@ void akinatorSay        (const wchar_t input[]);
 
 void akinatorPrintAndSay(const wchar_t input[]);
 
+void akinatorGoodbye();
+void akinatorError();
+
 #endif // AKINATOR_PROMTS_H_

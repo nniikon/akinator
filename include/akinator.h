@@ -19,12 +19,14 @@ typedef struct
     const char* databasePath;
 
 	AkinatorNode* nodeBuffer;
-    unsigned int capacity;
-    unsigned int freeIndex;
+    unsigned int nodeCapacity;
+    unsigned int nodeFreeIndex;
 
 	wchar_t* wordBuffer;
 	unsigned int wordCapacity;
 	unsigned int wordFreeIndex;
+
+    const wchar_t* loadBuffer;
 } Akinator;
 
 typedef enum
@@ -40,6 +42,17 @@ AkinatorError akinatorDtor(Akinator* akin);
 
 const char* akinatorGetErrorMsg(AkinatorError err);
 
-TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node); 
+TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node);
+
+AkinatorNode* nodeCalloc(Akinator* akin);
+
+wchar_t* wordCalloc(Akinator* akin);
+
+#define AKINATOR_DUMP_RETURN_ERROR(err)                                       \
+    do                                                                        \
+    {                                                                         \
+        DUMP(akin->dumpFile, "%s\n", akinatorGetErrorMsg(err));               \
+        return err;                                                           \
+    } while (0)
 
 #endif // AKINATOR_H_

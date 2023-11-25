@@ -118,36 +118,7 @@ inline static TreeNode* treeCalloc(Tree* tree)
     return (TreeNode*) dynArrCalloc(tree->memBuffer, &tree->capacity,
                                    &tree->freeIndex, sizeof(TreeNode));
 }
-// static TreeNode* treeCalloc(Tree* tree)
-// {
 
-//     if (tree == NULL) 
-//         return NULL;
-//     if (tree->capacity < tree->freeIndex)
-//         return NULL;
-
-//     if (tree->freeIndex == tree->capacity)
-//     {
-//         unsigned int newCapacity = 0;
-
-//         if (tree->capacity == 0)
-//             newCapacity = 16;
-//         else
-//             newCapacity = tree->capacity * 2;
-
-//         tree->memBuffer = realloc(tree->memBuffer,
-//                     sizeof(tree->memBuffer[0]) * newCapacity);
-
-//         if (tree->memBuffer == NULL)
-//             return NULL;
-
-//         memset(tree->memBuffer + tree->freeIndex, 0,
-//                     sizeof(tree->memBuffer[0]) * (newCapacity - tree->capacity));
-//         tree->capacity = newCapacity;
-//     }
-
-//     return tree->memBuffer + tree->freeIndex++;
-// }
 
 TreeError treeVerify(Tree* tree)
 {
@@ -271,46 +242,6 @@ void treePrintInorder(TreeNode* node, FILE* file)
 {
     treePrint(node, file, TREE_ORDER_INORDER);
 }
-
-
-// Tree* treeLoad(FILE* file, int direction)
-// {
-//     DUMP_FUNC_START;
-
-//     Tree tree = {};
-//     treeCtor(&tree);
-
-//     size_t size;
-//     char* buffer = NULL;
-//     createCharBuffer(&buffer, &size, file);
-
-//     free(buffer);
-//     DUMP_FUNC_SUCCESS;
-//     return TREE_ERROR_NO;
-// }
-
-
-// static TreeNode* treeLoadPreorder(Tree* tree, char* buffer)
-// {
-//     const char* delims = ")\n";
-//     TreeNode* node = treeCalloc(tree);
-//     if (node == NULL)
-//         return node;
-
-//     while (strchr(delims, buffer) == NULL)
-//     {
-//         if (buffer[0] == '(')
-//         {
-//             buffer += 2;
-//             node->leftBranch = treeLoadPreorder(tree, buffer);
-//         }
-//         else if (isdigit(buffer[0]))
-//         {
-//             node->data = atof
-//         }
-
-//     }
-// }
 
 
 TreeNode* treeCreateNode(Tree* tree, TreeNode* left, TreeNode* right, TreeNode* parent, treeElem_t data)

@@ -21,17 +21,45 @@ int main()
 
     if (dumpFile == NULL)
     {
-        fprintf(stderr, "Can't open %s\n", DUMP_FILE_PATH);
+        fwprintf(stderr, L"Can't open %s\n", DUMP_FILE_PATH);
         return -1;
     }
     fprintf(dumpFile, "<pre>\n");
 
-    akinatorCtor    (&akin, DATABASE_PATH, dumpFile);
-    akinatorQuestion(&akin, akin.tree.rootBranch);
-	akinatorQuestion(&akin, akin.tree.rootBranch);
-    akinatorGenPng(&akin);
-	akinatorSaveToFile(&akin);
+    akinatorCtor(&akin, DATABASE_PATH, dumpFile);
+    akinatorLoad(&akin);
+    AkinatorOptions opt = AKIN_OPT_ERROR;
+    while (1)
+    {
+        opt = akinatorGetMode();
+        switch (opt)
+        {
+            case AKIN_OPT_GUESS:
+                akinatorQuestion(&akin, akin.tree.rootBranch);
+                break;
+            case AKIN_OPT_DEFINITION:
+                break;
+            case AKIN_OPT_DUMP:
+                akinatorGenPng(&akin);
+                break;
+            case AKIN_OPT_COMPARE:
+                break;
+            case AKIN_OPT_FORCE_QUIT:
+                akinatorDtor(&akin);
+                akinatorGoodbye();
+                return 0;
+            case AKIN_OPT_SAVE_QUIT:
+                akinatorSaveToFile(&akin);
+                akinatorDtor(&akin);
+                akinatorGoodbye();
+                return 0;
 
-    akinatorDtor    (&akin);
+            case AKIN_OPT_ERROR:
+            default:
+                akinatorError();
+                break;
+        }
+    }
+
     fclose(dumpFile);
 }

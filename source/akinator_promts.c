@@ -6,6 +6,7 @@
 #include <string.h>
 
 #define OUTPUT_BUFFER_SIZE 512
+#define OUTPUT_COMMAND_SIZE 50
 #define  INPUT_BUFFER_SIZE 32
 
 void akinatorPrintAndSay(const wchar_t input[])
@@ -18,7 +19,7 @@ void akinatorPrintAndSay(const wchar_t input[])
 void akinatorSay(const wchar_t input[])
 {
     char cmdBuffer[OUTPUT_BUFFER_SIZE] = {};
-    char inputBuffer[OUTPUT_BUFFER_SIZE / 2] = {};
+    char inputBuffer[OUTPUT_BUFFER_SIZE - OUTPUT_COMMAND_SIZE] = {};
 
     wcstombs(inputBuffer, input, sizeof(inputBuffer));
     sprintf(cmdBuffer, "echo \"%s\"|festival --tts", inputBuffer);
@@ -28,8 +29,7 @@ void akinatorSay(const wchar_t input[])
 
 AkinatorOptions akinatorGetMode()
 {
-    akinatorPrintAndSay(L"Привет пользователь!\n"
-                        L"Что вы от меня хотите?\n");
+    akinatorPrintAndSay(L"Что вы от меня хотите?\n");
     int input = -1;
     while (input == -1)
     {
@@ -41,7 +41,7 @@ AkinatorOptions akinatorGetMode()
                 L"[6] Выйти без сохранения\n");
         input = akinatorGetOption(L"123456");
         if (input != -1)
-            return (AkinatorOptions) input;
+            return ((AkinatorOptions) (input - (int)'0'));
         akinatorPrintAndSay(L"Неверный ввод");
         wprintf            (L", попробуйте еще раз.\n");
     }
@@ -54,7 +54,7 @@ int akinatorGetOption(const wchar_t cAllowed[])
     wchar_t inputBuffer[INPUT_BUFFER_SIZE] = {};
     if (fgetws(inputBuffer, sizeof(inputBuffer), stdin) == NULL)
     {
-        fprintf(stderr, "FUCK YOU FGETS!\n");
+        fwprintf(stderr, L"FUCK YOU FGETS!\n");
         return -1;
     }
     int returnValue = inputBuffer[0];
@@ -64,4 +64,15 @@ int akinatorGetOption(const wchar_t cAllowed[])
     if (wcsrchr(cAllowed, inputBuffer[0]) == NULL)
         return -1;
     return returnValue;
+}
+
+
+void akinatorGoodbye()
+{
+    akinatorPrintAndSay(L"Хорошего дня!\n");
+}
+
+void akinatorError()
+{
+    akinatorPrintAndSay(L"Пизда рулю, неожиданная ошибка\n");
 }
