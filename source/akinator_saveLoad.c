@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <assert.h>
 #include <ctype.h>
+#include <wctype.h>
 
 static void akinatorSave_recursive(TreeNode* node, FILE* file);
 
@@ -60,7 +61,7 @@ static void akinatorSave_recursive(TreeNode* node, FILE* file)
 	fwprintf(file, L"<%ls> ", node->data->str);
 	akinatorSave_recursive(node-> leftBranch, file);
 	akinatorSave_recursive(node->rightBranch, file);
-
+	
 	fwprintf(file, L") ");
 }
 
@@ -98,6 +99,27 @@ AkinatorError akinatorLoad(Akinator* akin)
 }
 
 
+static wchar_t* skipWhiteSpaces(wchar_t* input)
+{
+    assert(input);
+
+    size_t i = 0;
+    for (i = 0; input[i] != L'\0'; i++)
+    {
+        if (!iswspace(input[i]))
+            return (input + i);
+    }
+    return input + i;
+}
+
+static size_t getWordSize(const wchar_t* input, const wchar_t* delims)
+{
+    assert(input);
+
+    return wcscspn(input, delims);
+}
+
+
 #define setBranch(dir)                                                        \
 	if ((*text)[0] == L'(')                                                   \
 	{                                                                         \
@@ -106,23 +128,30 @@ AkinatorError akinatorLoad(Akinator* akin)
         if (node-> dir ## Branch == NULL)                                     \
             return NULL;                                                      \
 	}                                                                         \
-	else /* ADD CHECK FOR NIL */                                              \
+	else                                                                      \
 	{                                                                         \
-		*text = wcschr(*text, L')');                                          \
-		*text += 2;                                                           \
-		node->leftBranch = NULL;                                              \
-		node->rightBranch = NULL;                                             \
-		node->data->type = AKINATOR_NODE_OBJ;                                 \
-		return node;                                                          \
-	} (void) 0
+		size_t wordSize = getWordSize(*text, L" ");                           \
+        if (wcsncmp(*text, AKINATOR_FILE_NIL_NAME, wordSize) == 0)            \
+        {                                                                     \
+            node-> dir ## Branch = NULL;                                      \
+            node->data->type = AKINATOR_NODE_OBJ;                             \
+            *text += wordSize;                                                \
+            *text = skipWhiteSpaces(*text);                                   \
+        }                                                                     \
+        else                                                                  \
+        {                                                                     \
+            return NULL;                                                      \
+            *err = AKINATOR_ERR_SYNTAX;                                       \
+        }                                                                     \
+	} (void) 0                                                                \
 
-// FIXME: cringe define.
+
+// FIXME: not that much cringe define, i'd say it's fine
 static TreeNode* akinatorLoad_recursive(Akinator* akin, Tree* tree,
                                             wchar_t** text, AkinatorError* err)
 {
     assert(text);
     assert(*text);
-    fwprintf(stderr, L"AKINATOR_LOAD started\n");
 
     if (*err != AKINATOR_ERR_NO)
     {
@@ -135,10 +164,11 @@ static TreeNode* akinatorLoad_recursive(Akinator* akin, Tree* tree,
         return NULL;
     }
 
-	*text += 2;
+	(*text)++;
+    *text = skipWhiteSpaces(*text);
 
 	TreeNode* node = treeCreateEmptyNode(tree);
-    node->data = nodeCalloc(akin);
+    node->data = akintorNodeCalloc(akin);
 
 	node->data->str = *text + 1;
 	*text = wcschr(*text, L'>');
@@ -148,15 +178,23 @@ static TreeNode* akinatorLoad_recursive(Akinator* akin, Tree* tree,
         return NULL;
     }
     *text[0] = L'\0';
-	*text += 2;
 
+	(*text)++;
+    *text = skipWhiteSpaces(*text);
 	setBranch(left);
     setBranch(right);
+
+    if (node->leftBranch == NULL && node->rightBranch == NULL)
+    {
+        *text = skipWhiteSpaces(*text + 1); 
+        return node;
+    }
 
     if ((*text)[0] == L')')
     {
 	    node->data->type = AKINATOR_NODE_QUESTION;
-        *text += 2;
+        (*text)++;
+        *text = skipWhiteSpaces(*text);
         return node;
     }
     else

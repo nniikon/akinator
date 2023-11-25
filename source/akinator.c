@@ -30,14 +30,14 @@ const char* akinatorGetErrorMsg(AkinatorError err)
 }
 
 
-AkinatorNode* nodeCalloc(Akinator* akin)
+AkinatorNode* akintorNodeCalloc(Akinator* akin)
 {
     return (AkinatorNode*) dynArrCalloc(akin->nodeBuffer, &akin->nodeCapacity,
                                    &akin->nodeFreeIndex, sizeof(AkinatorNode));
 }
 
 
-wchar_t* wordCalloc(Akinator* akin)
+wchar_t* akinatorWordCalloc(Akinator* akin)
 {
 	return (wchar_t*) dynArrCalloc(akin->wordBuffer, &akin->nodeCapacity,
                                    &akin->nodeFreeIndex, sizeof(wchar_t) * AKINATOR_MAX_WORD_SIZE);
@@ -75,7 +75,7 @@ AkinatorError akinatorCtor(Akinator* akin, const char* database, FILE* dumpFile)
         akinErr = AKINATOR_ERR_BAD_MEM_ALLOC;
         goto WordBufferFailure;
     }
-    akin->tree.rootBranch->data = nodeCalloc(akin);
+    akin->tree.rootBranch->data = akintorNodeCalloc(akin);
     if (akin->tree.rootBranch->data == NULL)
     {
         akinErr = AKINATOR_ERR_BAD_MEM_ALLOC;
@@ -88,12 +88,22 @@ AkinatorError akinatorCtor(Akinator* akin, const char* database, FILE* dumpFile)
     if (stkErr != NO_ERROR)
     {
         akinErr = AKINATOR_ERR_STACK;
-        goto StackInitFailure;
+        goto StackDefInitFailure;
     }
+
+    stkErr = stackInit(&akin->cmpStack);
+    if (stkErr != NO_ERROR)
+    {
+        akinErr = AKINATOR_ERR_STACK;
+        goto StackCmdInitFailure;
+    }
+
     DUMP_FUNC_SUCCESS(akin->dumpFile);
     return AKINATOR_ERR_NO;
 
-    StackInitFailure:
+    StackCmdInitFailure:
+    stackDtor(&akin->defStack);
+    StackDefInitFailure:
     free(akin->tree.rootBranch->data);
     NodeCallocFailure:
     free(akin->wordBuffer);
@@ -115,7 +125,12 @@ AkinatorError akinatorDtor(Akinator* akin)
     if (treeErr != TREE_ERROR_NO)
         AKINATOR_DUMP_RETURN_TREE_ERROR(treeErr); // May cause UB so return asap.
 
-    StackError stkErr = stackDtor(&akin->defStack);
+    StackError 
+    stkErr = stackDtor(&akin->defStack);
+    if (stkErr != NO_ERROR)
+        AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_STACK);
+
+    stkErr = stackDtor(&akin->cmpStack);
     if (stkErr != NO_ERROR)
         AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_STACK);
 
@@ -124,6 +139,7 @@ AkinatorError akinatorDtor(Akinator* akin)
 
     free(akin->nodeBuffer);
     free(akin->wordBuffer);
+    free(akin->loadBuffer);
 
     DUMP_FUNC_SUCCESS(akin->dumpFile);
     return AKINATOR_ERR_NO;
@@ -171,7 +187,7 @@ static AkinatorError akinatorVictory(Akinator* akin, TreeNode* node)
 	akinatorPrintAndSay(L"Тебе повезло. Ты меня обыграл\n"
 						L"Как зовут твоего персонажа?  \n");
 
-	wchar_t* newObj = wordCalloc(akin);
+	wchar_t* newObj = akinatorWordCalloc(akin);
     if (newObj == NULL)
         AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_BAD_MEM_ALLOC);
 
@@ -184,15 +200,15 @@ static AkinatorError akinatorVictory(Akinator* akin, TreeNode* node)
     node->leftBranch  = treeCreateEmptyNode(&akin->tree);
     node->rightBranch = treeCreateEmptyNode(&akin->tree);
 
-    node->leftBranch ->data = nodeCalloc(akin);
-    node->rightBranch->data = nodeCalloc(akin);
+    node->leftBranch ->data = akintorNodeCalloc(akin);
+    node->rightBranch->data = akintorNodeCalloc(akin);
 
     akinatorPrintAndSay(L"И чем он отличается от ");
     akinatorPrintAndSay(node->data->str);
     wprintf(L"?\n");
 
     wprintf(L"Ваш персонаж ... ");
-    wchar_t* newQuestion = wordCalloc(akin);
+    wchar_t* newQuestion = akinatorWordCalloc(akin);
     if (newQuestion == NULL)
     {
         akin->wordFreeIndex--;
@@ -226,7 +242,6 @@ static AkinatorError akinatorVictory(Akinator* akin, TreeNode* node)
 }
 
 
-// FIXME: add error-checks
 TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node, AkinatorError* err)
 {
     if (*err != AKINATOR_ERR_NO)

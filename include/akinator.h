@@ -27,9 +27,10 @@ typedef struct
 	unsigned int wordCapacity;
 	unsigned int wordFreeIndex;
 
-    const wchar_t* loadBuffer;
+    wchar_t* loadBuffer;
 
     Stack defStack;
+    Stack cmpStack;
 } Akinator;
 
 typedef enum
@@ -39,17 +40,12 @@ typedef enum
     #undef  DEF_AKINATOR_ERR
 } AkinatorError;
 
-AkinatorError akinatorCtor(Akinator* akin, const char* database, FILE* dumpFile);
-
-AkinatorError akinatorDtor(Akinator* akin);
-
-const char* akinatorGetErrorMsg(AkinatorError err);
-
-TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node, AkinatorError* err);
-
-AkinatorNode* nodeCalloc(Akinator* akin);
-
-wchar_t* wordCalloc(Akinator* akin);
+AkinatorError akinatorCtor       (Akinator* akin, const char* database, FILE* dumpFile);
+AkinatorError akinatorDtor       (Akinator* akin);
+TreeNode*     akinatorQuestion   (Akinator* akin, TreeNode* node, AkinatorError* err);
+AkinatorNode* akintorNodeCalloc  (Akinator* akin);
+wchar_t*      akinatorWordCalloc (Akinator* akin);
+const char*   akinatorGetErrorMsg(AkinatorError err);
 
 #define AKINATOR_DUMP_RETURN_ERROR(err)                                       \
     do                                                                        \

@@ -246,7 +246,7 @@ StackError stackInit_internal(Stack* stk, StackInitInfo info)
     ((canary_t*)(stk->data + stk->capacity))[0] = CANARY_VALUE;
 
     #else
-    stk->data = (stkElem_t*)malloc(stk->capacity * sizeof(stkElem_t));
+    stk->data = (stkElem_t*)calloc(stk->capacity, sizeof(stkElem_t));
     CHECK_CONDITION_RETURN_ERROR(stk->data == NULL, MEMORY_ALLOCATION_ERROR);
     #endif
 
