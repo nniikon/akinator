@@ -7,7 +7,7 @@
 
 #include "../include/akinator_dump.h" // FIXME: delete
 #include "../include/akinator_saveLoad.h" // FIXME: delete
-
+#include "../include/akinator_definition.h"
 
 const char* DATABASE_PATH  = "db.akt";
 const char* DUMP_FILE_PATH = "dump.html";
@@ -38,6 +38,7 @@ int main()
                 akinatorQuestion(&akin, akin.tree.rootBranch);
                 break;
             case AKIN_OPT_DEFINITION:
+                akinatorGetDefinition(&akin);
                 break;
             case AKIN_OPT_DUMP:
                 akinatorGenPng(&akin);

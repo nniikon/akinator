@@ -27,7 +27,7 @@ all:
 	@$(MAKE) -C ./binaryTree/tree_source
 	@$(MAKE) -C ./source
 	@$(MAKE) -C ./common/source
-	@gcc $(CFLAGS) -o $(BUILD_DIR)/$(EXEC_NAME) $(wildcard $(BUILD_DIR)/*.o)
+	@g++ $(CFLAGS) -o $(BUILD_DIR)/$(EXEC_NAME) $(BUILD_DIR)/*.o
 
 clean:
 	@$(MAKE) clean -C ./source

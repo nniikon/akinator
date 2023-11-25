@@ -11,7 +11,7 @@
 
 void akinatorPrintAndSay(const wchar_t input[])
 {
-	//akinatorSay(input);
+	akinatorSay(input);
 	wprintf(input);
 }
 

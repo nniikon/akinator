@@ -26,7 +26,7 @@ OBJS = $(patsubst %.c, $(BUILD_DIR)/%.o, $(SRCS))
 all: $(BUILD_DIR) $(OBJS)
 
 $(BUILD_DIR)/%.o: %.c
-	@gcc $^ $(CFLAGS) -c -o $@
+	@g++ $^ $(CFLAGS) -c -o $@
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)

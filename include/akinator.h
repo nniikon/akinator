@@ -5,8 +5,9 @@
 #include <stdlib.h>
 #include <wchar.h>
 
-#include "../binaryTree/tree_include/tree.h"
 #include "akinator_promts.h"
+#include "akinator_stack.h"
+#include "../binaryTree/tree_include/tree.h"
 #include "../common/include/memAllocations.h"
 
 typedef struct
@@ -27,6 +28,8 @@ typedef struct
 	unsigned int wordFreeIndex;
 
     const wchar_t* loadBuffer;
+
+    Stack defStack;
 } Akinator;
 
 typedef enum

@@ -71,9 +71,9 @@ AkinatorError akinatorLoad(Akinator* akin)
     size_t size = 0;
     getFileSize(akin->databasePath, &size);
 
-    wchar_t* buffer = calloc(size + 1, sizeof(wchar_t));
+    wchar_t* buffer = (wchar_t*) calloc(size + 1, sizeof(wchar_t));
     if (buffer == NULL)
-        return -1;
+        AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_BAD_MEM_ALLOC);
     akin->loadBuffer = buffer;
 
 	FILE* dbFile = fopen(akin->databasePath, "r");

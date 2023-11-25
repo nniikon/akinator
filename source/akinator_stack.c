@@ -1,4 +1,4 @@
-#include "../include/stack.h"
+#include "../include/akinator_stack.h"
 
 
 static FILE* stkerr = stderr;
@@ -176,9 +176,9 @@ static StackError increaseCapacity(Stack* stk, const float coef)
     #ifdef CANARY_PROTECT
 
     // Move the data to the originally allocated place.
-    stk->data = (elem_t*)(size_t(stk->data) - sizeof(canary_t));
+    stk->data = (stkElem_t*)(size_t(stk->data) - sizeof(canary_t));
 
-    elem_t* temp = (elem_t*)realloc(stk->data, stk->capacity * sizeof(elem_t) + 2 * sizeof(canary_t));
+    stkElem_t* temp = (stkElem_t*)realloc(stk->data, stk->capacity * sizeof(stkElem_t) + 2 * sizeof(canary_t));
     if (temp == NULL)
     {
         stk->capacity = (int)((float)stk->capacity / coef);
@@ -190,12 +190,12 @@ static StackError increaseCapacity(Stack* stk, const float coef)
     ((canary_t*)stk->data)[0] = CANARY_VALUE;
 
     // Move the data pointer to the real data.
-    stk->data = (elem_t*)((size_t)stk->data + sizeof(canary_t));
+    stk->data = (stkElem_t*)((size_t)stk->data + sizeof(canary_t));
     ((canary_t*)(stk->data + stk->capacity))[0] = CANARY_VALUE;
 
     #else
 
-    elem_t* temp = (elem_t*)realloc(stk->data, sizeof(elem_t) * stk->capacity);
+    stkElem_t* temp = (stkElem_t*)realloc(stk->data, sizeof(stkElem_t) * stk->capacity);
     if (temp == NULL) return MEMORY_ALLOCATION_ERROR;
      
     stk->data = temp;
@@ -217,11 +217,11 @@ static StackError increaseCapacity(Stack* stk, const float coef)
 }
 
 
-StackError stackInit_internal(Stack* stk, size_t capacity, StackInitInfo info)
+StackError stackInit_internal(Stack* stk, StackInitInfo info)
 {
     CHECK_CONDITION_RETURN_ERROR(stk == NULL, DATA_NULL_ERROR);
 
-    stk->capacity = (int)capacity;
+    stk->capacity = STACK_SIZE_DEFAULT;
     stk->size = 0;
     stk->info = info;
 
@@ -233,20 +233,20 @@ StackError stackInit_internal(Stack* stk, size_t capacity, StackInitInfo info)
     #ifdef CANARY_PROTECT
     
     // Allocate memory for data and 2 canary elements.
-    stk->data = (elem_t*)malloc(capacity * sizeof(elem_t) + 2 * sizeof(canary_t));
+    stk->data = (stkElem_t*)malloc(capacity * sizeof(stkElem_t) + 2 * sizeof(canary_t));
     CHECK_CONDITION_RETURN_ERROR(stk->data == NULL, MEMORY_ALLOCATION_ERROR);
 
     // Set the left canary.
     ((canary_t*)stk->data)[0] = CANARY_VALUE;
 
     // Move the data pointer to the real data.
-    stk->data = (elem_t*)((size_t)stk->data + sizeof(canary_t));
+    stk->data = (stkElem_t*)((size_t)stk->data + sizeof(canary_t));
 
     // Set the right canary.
     ((canary_t*)(stk->data + stk->capacity))[0] = CANARY_VALUE;
 
     #else
-    stk->data = (elem_t*)malloc(capacity * sizeof(elem_t));
+    stk->data = (stkElem_t*)malloc(stk->capacity * sizeof(stkElem_t));
     CHECK_CONDITION_RETURN_ERROR(stk->data == NULL, MEMORY_ALLOCATION_ERROR);
     #endif
 
@@ -262,13 +262,7 @@ StackError stackInit_internal(Stack* stk, size_t capacity, StackInitInfo info)
 }
 
 
-StackError stackInit_internal(Stack* stk, StackInitInfo info)
-{
-    return stackInit_internal(stk, STACK_SIZE_DEFAULT, info);
-}
-
-
-StackError stackPush(Stack* stk, const elem_t elem)
+StackError stackPush(Stack* stk, const stkElem_t elem)
 {
     CHECK_CONDITION_RETURN_ERROR(stk == NULL, STRUCT_NULL_ERROR);
 
@@ -276,8 +270,8 @@ StackError stackPush(Stack* stk, const elem_t elem)
 
     CHECK_DUMP_AND_RETURN_ERROR(stk);
 
-    CHECK_DATA_HASH_RETURN_ERROR(stk);    
-    
+    CHECK_DATA_HASH_RETURN_ERROR(stk);
+
     if (stk->size >= stk->capacity)
     {
         StackError error = increaseCapacity(stk, STACK_CAPACITY_MULTIPLIER);
@@ -291,7 +285,7 @@ StackError stackPush(Stack* stk, const elem_t elem)
 }
 
 
-StackError stackPop(Stack* stk, elem_t* elem)
+StackError stackPop(Stack* stk, stkElem_t* elem)
 {
     CHECK_CONDITION_RETURN_ERROR(stk == NULL, ELEM_NULL_ERROR);
     CHECK_CONDITION_RETURN_ERROR(elem == NULL, ELEM_NULL_ERROR);
@@ -451,7 +445,7 @@ static unsigned long long calculateHash(const char* dataStart, const size_t size
     unsigned long long hash = +79653421411ull; 
     for (size_t i = 0; i < size; i++)
     {
-        hash += int(dataStart[i]) * i;
+        hash += (int)dataStart[i] * i;
     }
     return hash;
 }
@@ -474,7 +468,7 @@ static unsigned long long calculateDataHash(const Stack* stk)
     assert(stk);
     unsigned long long hash = 0ull;
 
-    hash += calculateHash((const char*)stk->data, stk->size * sizeof(elem_t));
+    hash += calculateHash((const char*)stk->data, stk->size * sizeof(stkElem_t));
 
     return hash;
 }

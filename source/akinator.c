@@ -59,33 +59,49 @@ AkinatorError akinatorCtor(Akinator* akin, const char* database, FILE* dumpFile)
     akin->databasePath = database;
     akin->dumpFile     = dumpFile;
 
+    AkinatorError akinErr = AKINATOR_ERR_NO;
+    StackError    stkErr  = NO_ERROR;
     akin->nodeBuffer = (AkinatorNode*) dynArrCtor(&akin->nodeCapacity, 
                                     sizeof(AkinatorNode));
     if (akin->nodeBuffer == NULL)
+    {
+        akinErr = AKINATOR_ERR_BAD_MEM_ALLOC;
         goto NodeBufferFailure;
-
+    }
     akin->wordBuffer = (wchar_t*) dynArrCtor(&akin->wordCapacity,
                                     sizeof(wchar_t) * AKINATOR_MAX_WORD_SIZE);
     if (akin->wordBuffer == NULL)
+    {
+        akinErr = AKINATOR_ERR_BAD_MEM_ALLOC;
         goto WordBufferFailure;
-
+    }
     akin->tree.rootBranch->data = nodeCalloc(akin);
     if (akin->tree.rootBranch->data == NULL)
+    {
+        akinErr = AKINATOR_ERR_BAD_MEM_ALLOC;
         goto NodeCallocFailure;
-
+    }
     akin->tree.rootBranch->data->type = AKINATOR_NODE_OBJ;
     akin->tree.rootBranch->data->str  = AKINATOR_UNKNOWN_OBJ_NAME;
 
+    stkErr = stackInit(&akin->defStack);
+    if (stkErr != NO_ERROR)
+    {
+        akinErr = AKINATOR_ERR_STACK;
+        goto StackInitFailure;
+    }
     DUMP_FUNC_SUCCESS(akin->dumpFile);
     return AKINATOR_ERR_NO;
 
+    StackInitFailure:
+    free(akin->tree.rootBranch->data);
     NodeCallocFailure:
     free(akin->wordBuffer);
     WordBufferFailure:
     free(akin->nodeBuffer);
     NodeBufferFailure:
     treeDtor(&akin->tree);
-    AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_BAD_MEM_ALLOC);
+    AKINATOR_DUMP_RETURN_ERROR(akinErr);
 }
 
 
@@ -97,7 +113,11 @@ AkinatorError akinatorDtor(Akinator* akin)
 
     TreeError treeErr = treeDtor(&akin->tree);
     if (treeErr != TREE_ERROR_NO)
-        AKINATOR_DUMP_RETURN_TREE_ERROR(treeErr);
+        AKINATOR_DUMP_RETURN_TREE_ERROR(treeErr); // May cause UB so return asap.
+
+    StackError stkErr = stackDtor(&akin->defStack);
+    if (stkErr != NO_ERROR)
+        AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_STACK);
 
     akin->databasePath = NULL;
     akin->dumpFile     = NULL;
