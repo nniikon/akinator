@@ -5,10 +5,10 @@
 #include "../../common/include/memAllocations.h"
 
 
-#define DUMP_RETURN_ERROR(err)                                           \
+#define DUMP_RETURN_ERROR(err)                                                \
     do                                                                        \
     {                                                                         \
-        DUMP(tree->debugInfo.file, "%s\n", treeGetErrorMsg(err));        \
+        DUMP(tree->debugInfo.dumpFile, "%s\n", treeGetErrorMsg(err));         \
         return err;                                                           \
     } while (0)
 
@@ -42,8 +42,6 @@ typedef enum TreeDirection
 
 static TreeError treeInsert(Tree* tree, TreeNode* node, TreeDirection dir, treeElem_t data);
 
-static void treePrint(TreeNode* node, FILE* file, TreePrintOrder order);
-
 static unsigned int treeCalcSize(Tree* tree);
 
 static unsigned int treeCalcSize_recursive(TreeNode* node);
@@ -66,22 +64,22 @@ const char* treeGetErrorMsg(TreeError err)
 }
 
 
-TreeError treeCtor(Tree* tree, FILE* file)
+TreeError treeCtor(Tree* tree, FILE* dumpFile)
 {
 	if (tree == NULL)
 		return TREE_ERROR_NULLPTR_PASSED;
 	memset(tree, 0, sizeof(Tree));
 
-	if (file != NULL)
+	if (dumpFile != NULL)
 	{
-		tree->debugInfo.file = file;
 		tree->debugInfo.dumpIndex = 0;
 	}
 	else
 	{
-		tree->debugInfo.file = NULL;
 		tree->debugInfo.dumpIndex = (unsigned int) -1;
 	}
+	tree->debugInfo.dumpFile = NULL;
+
 
     tree->memBuffer = (TreeNode*) dynArrCtor(&tree->capacity, sizeof(TreeNode));
     if (tree->memBuffer == NULL)
@@ -96,19 +94,19 @@ TreeError treeCtor(Tree* tree, FILE* file)
     }
     tree->size++;
 
-    DUMP_FUNC_SUCCESS(tree->debugInfo.file);
+    DUMP_FUNC_SUCCESS(tree->debugInfo.dumpFile);
     return TREE_ERROR_NO;
 }
 
 
 TreeError treeDtor(Tree* tree)
 {
-    DUMP_FUNC_START(tree->debugInfo.file);
+    DUMP_FUNC_START(tree->debugInfo.dumpFile);
 
     free(tree->memBuffer);
     memset(tree, 0, sizeof(Tree));
 
-    DUMP_FUNC_SUCCESS(tree->debugInfo.file);
+    DUMP_FUNC_SUCCESS(tree->debugInfo.dumpFile);
     return TREE_ERROR_NO;
 }
 
@@ -197,50 +195,6 @@ TreeError treeInsertRight(Tree* tree, TreeNode* node, treeElem_t data)
 TreeError treeInsertLeft(Tree* tree, TreeNode* node, treeElem_t data)
 {
     return treeInsert(tree, node, TREE_DIR_LEFT , data);
-}
-
-
-static void treePrint(TreeNode* node, FILE* file, TreePrintOrder order)
-{
-    if (node == NULL)
-    {
-        fprintf(file, "nil ");
-        return;
-    }
-    fprintf(file, "( ");
-
-    if (order ==  TREE_ORDER_PREORDER)
-        fprintf(file, TREE_ELEM_FORMAT " " ,node->data);
-
-    treePrint(node->leftBranch, file, order);
-
-    if (order == TREE_ORDER_INORDER)
-        fprintf(file, TREE_ELEM_FORMAT " " ,node->data);
-
-    treePrint(node->rightBranch, file, order);
-
-    if (order == TREE_ORDER_POSTORDER)
-        fprintf(file, TREE_ELEM_FORMAT " " ,node->data);
-
-    fprintf(file, ") ");
-}
-
-
-void treePrintPostorder(TreeNode* node, FILE* file)
-{
-    treePrint(node, file, TREE_ORDER_POSTORDER);
-}
-
-
-void treePrintPreorder(TreeNode* node, FILE* file)
-{
-    treePrint(node, file, TREE_ORDER_PREORDER);
-}
-
-
-void treePrintInorder(TreeNode* node, FILE* file)
-{
-    treePrint(node, file, TREE_ORDER_INORDER);
 }
 
 

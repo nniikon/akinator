@@ -29,8 +29,11 @@ void akinatorSay(const wchar_t input[])
     //system(cmdBuffer);
 }
 
-inline static AkinatorOptions convertCharToOption(const char input)
+inline static AkinatorOptions convertIntToOption(const int input)
 {
+    if (input == -1)
+        return AKIN_OPT_ERROR;
+
     return ((AkinatorOptions) (input - (int)'0'));
 }
 
@@ -53,7 +56,7 @@ AkinatorOptions akinatorGetMode(AkinatorError* err)
             return AKIN_OPT_ERROR;
 
         if (input != -1)
-            return convertCharToOption(input);
+            return convertIntToOption(input);
         akinatorPrintAndSay(L"Неверный ввод");
         wprintf            (L", попробуйте еще раз.\n");
     }
@@ -64,13 +67,18 @@ AkinatorOptions akinatorGetMode(AkinatorError* err)
 static wchar_t* cutUnnecessarySpace(wchar_t* input)
 {
     while (iswspace(input[0]))
+    {
         input++;
+    }
 
-    wchar_t* inputPtr = input;
-    while (!iswspace(inputPtr[0]))
-        inputPtr++;
-    inputPtr[0] = L'\0';
-    return input;
+	wchar_t* inputDup = input;
+    while (!iswspace(inputDup[0]))
+    {
+        inputDup++;
+    }
+
+	inputDup[0] = L'\n';
+	return input;
 }
 
 
@@ -84,13 +92,14 @@ int akinatorGetOption(const wchar_t cAllowed[], AkinatorError* err)
         return -1;
     }
 
+    wchar_t* inputBufferDup = cutUnnecessarySpace(inputBuffer);
 
-    int returnValue = inputBuffer[0];
+    int returnValue = inputBufferDup[0];
 
-    if (inputBuffer[1] != L'\0')
+    if (inputBufferDup[1] != L'\n')
         return -1;
 
-    if (wcsrchr(cAllowed, inputBuffer[0]) == NULL)
+    if (wcsrchr(cAllowed, inputBufferDup[0]) == NULL)
         return -1;
 
     *err = AKINATOR_ERR_NO;

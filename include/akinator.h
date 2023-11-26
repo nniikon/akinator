@@ -27,9 +27,6 @@ typedef struct
 	unsigned int wordFreeIndex;
 
     wchar_t* loadBuffer;
-
-    Stack defStack;
-    Stack cmpStack;
 } Akinator;
 
 typedef enum

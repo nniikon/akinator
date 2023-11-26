@@ -79,11 +79,13 @@ int main()
                 break;
 
             case AKIN_OPT_DUMP:
-                err = akinatorGenPng(&akin);
+                err = akinatorGenPng(&akin, 1);
                 AKINATOR_CHECK_MAIN_ERR(err);
                 break;
 
             case AKIN_OPT_COMPARE:
+                err = akinatorCompareDefinitions(&akin);
+                AKINATOR_CHECK_MAIN_ERR(err);
                 break;
 
             case AKIN_OPT_SAVE_QUIT:

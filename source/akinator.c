@@ -85,26 +85,9 @@ AkinatorError akinatorCtor(Akinator* akin, const char* database, FILE* dumpFile)
     akin->tree.rootBranch->data->type = AKINATOR_NODE_OBJ;
     akin->tree.rootBranch->data->str  = AKINATOR_UNKNOWN_OBJ_NAME;
 
-    stkErr = stackInit(&akin->defStack);
-    if (stkErr != NO_ERROR)
-    {
-        akinErr = AKINATOR_ERR_STACK;
-        goto StackDefInitFailure;
-    }
-
-    stkErr = stackInit(&akin->cmpStack);
-    if (stkErr != NO_ERROR)
-    {
-        akinErr = AKINATOR_ERR_STACK;
-        goto StackCmdInitFailure;
-    }
-
     DUMP_FUNC_SUCCESS(akin->dumpFile);
     return AKINATOR_ERR_NO;
 
-    StackCmdInitFailure:
-    stackDtor(&akin->defStack);
-    StackDefInitFailure:
     free(akin->tree.rootBranch->data);
     NodeCallocFailure:
     free(akin->wordBuffer);
@@ -125,15 +108,6 @@ AkinatorError akinatorDtor(Akinator* akin)
     TreeError treeErr = treeDtor(&akin->tree);
     if (treeErr != TREE_ERROR_NO)
         AKINATOR_DUMP_RETURN_TREE_ERROR(treeErr); // May cause UB so return asap.
-
-    StackError 
-    stkErr = stackDtor(&akin->defStack);
-    if (stkErr != NO_ERROR)
-        AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_STACK);
-
-    stkErr = stackDtor(&akin->cmpStack);
-    if (stkErr != NO_ERROR)
-        AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_STACK);
 
     akin->databasePath = NULL;
     akin->dumpFile     = NULL;
@@ -258,13 +232,13 @@ TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node, AkinatorError* err)
 		case AKINATOR_NODE_OBJ:
 			if (akinatorAskQuestion(akin, node, L"Вы загадали ", err) == 0)
             {
-                if (*err != AKINATOR_ERR_NO)
+                if (*err == AKINATOR_ERR_NO)
 				    *err = akinatorVictory(akin, node);
                 return NULL;
             }
 			else
             {
-                if (*err != AKINATOR_ERR_NO)
+                if (*err == AKINATOR_ERR_NO)
 				    akinatorLose();
                 return NULL;
             }

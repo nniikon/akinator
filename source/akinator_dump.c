@@ -6,6 +6,7 @@
 #include <sys/types.h>
 
 #include "../include/akinator_dump_cfg.h"
+#include "../include/akinator_promts.h"
 
 #define BUFFER_SIZE 50
 
@@ -18,7 +19,7 @@ void akinatorMakeLogdir()
     system(cmdBuffer);
 }
 
-static void akinsatorCompiteDot(Akinator* akin)
+static void akinatorCompiteDot(Akinator* akin)
 {
     char cmdBuffer[BUFFER_SIZE] = {};
     snprintf(cmdBuffer, BUFFER_SIZE, "dot " AKINATOR_DOT_FILE_MASK\
@@ -66,7 +67,7 @@ static void akinatorPrintNodes(TreeNode* node, FILE* dotFile)
 }
 
 
-AkinatorError akinatorGenPng(Akinator* akin)
+AkinatorError akinatorGenPng(Akinator* akin, int isLoud)
 {
     akinatorMakeLogdir();
     if (akin == NULL)
@@ -90,9 +91,15 @@ AkinatorError akinatorGenPng(Akinator* akin)
     log(L"}\n");
 
     fclose(dotFile);
-    akinsatorCompiteDot(akin);
+    akinatorCompiteDot(akin);
 
     akin->dumpIndex++;
 
+    if (isLoud)
+    {
+        wprintf(L"%s ", fileBuffer);
+        akinatorSay(L"Файл ");
+        akinatorPrintAndSay(L"был успешно создан\n");
+    }
     return AKINATOR_ERR_NO;
 }

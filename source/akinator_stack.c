@@ -327,7 +327,7 @@ StackError stackDtor(Stack* stk)
     CHECK_CONDITION_RETURN_ERROR(stk->data == NULL,   DATA_NULL_ERROR);
 
     CHECK_STACK_HASH_RETURN_ERROR(stk);
-    
+ 
     CHECK_DUMP_AND_RETURN_ERROR(stk);
 
     freeData(stk);

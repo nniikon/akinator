@@ -33,8 +33,7 @@ AkinatorError akinatorSaveToFile(Akinator* akin)
 }
 
 
-// FIXME: add error pls...... (ssize_t* maybe). 95% sure it returns in bytes
-static int getFileSize(const char* fileName, size_t* size)
+static ssize_t getFileSize(const char* fileName)
 {
     struct stat bf = {};
     int error = stat(fileName, &bf);
@@ -43,8 +42,7 @@ static int getFileSize(const char* fileName, size_t* size)
         return -1;
     }
 
-    *size = (size_t) bf.st_size;
-    return 0;
+    return (ssize_t) bf.st_size;
 }
 
 
@@ -67,8 +65,8 @@ static void akinatorSave_recursive(TreeNode* node, FILE* file)
 
 AkinatorError akinatorLoad(Akinator* akin)
 {
-    size_t size = 0;
-    if (getFileSize(akin->databasePath, &size) == -1)
+    ssize_t size = getFileSize(akin->databasePath);
+    if (size == -1)
         AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_STAT);
 
     wchar_t* buffer = (wchar_t*) calloc(size + 1, sizeof(wchar_t));
