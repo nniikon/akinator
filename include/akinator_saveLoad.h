@@ -7,5 +7,4 @@ AkinatorError akinatorSaveToFile(Akinator* akin);
 
 AkinatorError akinatorLoad(Akinator* akin); 
 
-
 #endif

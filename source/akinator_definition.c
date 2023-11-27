@@ -196,7 +196,7 @@ static AkinatorError akinatorGetDefinitionStack(Akinator* akin, const wchar_t ms
         isCorrectInput = akinatorPushDefinition_recursive(stk, objName, akin->tree.rootBranch);
         if (!isCorrectInput)
         {
-            wprintf(L"Я не знаю ничего подобного! Попробуйте еще раз:\n");
+            akinatorPrintAndSay(L"Я не знаю ничего подобного! Попробуйте еще раз:\n");
             memset(stk->data, stk->size, sizeof(wchar_t*));
             stk->size = 0;
         }

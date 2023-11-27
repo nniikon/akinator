@@ -26,7 +26,7 @@ void akinatorSay(const wchar_t input[])
 
     wcstombs(inputBuffer, input, sizeof(inputBuffer));
     sprintf(cmdBuffer, "echo \"%s\"|festival --tts", inputBuffer);
-    //system(cmdBuffer);
+    system(cmdBuffer);
 }
 
 inline static AkinatorOptions convertIntToOption(const int input)

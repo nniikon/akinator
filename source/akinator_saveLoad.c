@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <wctype.h>
 
+
 static void akinatorSave_recursive(TreeNode* node, FILE* file);
 
 
@@ -63,6 +64,7 @@ static void akinatorSave_recursive(TreeNode* node, FILE* file)
 	fwprintf(file, L") ");
 }
 
+
 AkinatorError akinatorLoad(Akinator* akin)
 {
     ssize_t size = getFileSize(akin->databasePath);
@@ -111,6 +113,7 @@ static wchar_t* skipWhiteSpaces(wchar_t* input)
     return input + i;
 }
 
+
 static size_t getWordSize(const wchar_t* input, const wchar_t* delims)
 {
     assert(input);
@@ -146,6 +149,8 @@ static size_t getWordSize(const wchar_t* input, const wchar_t* delims)
 
 
 // FIXME: not that much cringe define, i'd say it's fine
+// Alternative: an array[] that contains both pointers + loop
+// Alternative: swap the pointer twice and do the same thing
 static TreeNode* akinatorLoad_recursive(Akinator* akin, Tree* tree,
                                             wchar_t** text, AkinatorError* err)
 {

@@ -36,7 +36,7 @@ int main()
 	if (dumpFile == NULL)
 	{
 		fwprintf(stderr, L"Не удалось открыть файл %s\n", AKINATOR_DUMP_FILE_PATH);
-		dumpFile = stderr;
+		return AKINATOR_ERR_OPEN_FILE;
 	}
 
     err = akinatorCtor(&akin, AKINATOR_DATABASE_PATH, dumpFile);
@@ -70,26 +70,22 @@ int main()
         {
             case AKIN_OPT_GUESS:
                 akinatorQuestion(&akin, akin.tree.rootBranch, &err);
-                AKINATOR_CHECK_MAIN_ERR(err);
                 break;
 
             case AKIN_OPT_DEFINITION:
                 err = akinatorGetDefinition(&akin);
-                AKINATOR_CHECK_MAIN_ERR(err);
                 break;
 
             case AKIN_OPT_DUMP:
                 err = akinatorGenPng(&akin, 1);
-                AKINATOR_CHECK_MAIN_ERR(err);
                 break;
 
             case AKIN_OPT_COMPARE:
                 err = akinatorCompareDefinitions(&akin);
-                AKINATOR_CHECK_MAIN_ERR(err);
                 break;
 
             case AKIN_OPT_SAVE_QUIT:
-                akinatorSaveToFile(&akin);
+                err = akinatorSaveToFile(&akin);
                 [[fallthrough]];
             case AKIN_OPT_FORCE_QUIT:
                 akinatorGoodbye();
@@ -102,6 +98,7 @@ int main()
                 gameOver = 1;
                 break;
         }
+        AKINATOR_CHECK_MAIN_ERR(err);
     }
 
 	akinatorDtor(&akin);
