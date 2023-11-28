@@ -2,7 +2,7 @@
 
 #include <assert.h>
 #include "../include/akinator_stack.h"
-#include "../include/akinator_promts.h"
+#include "../include/akinator_prompts.h"
 #include "../include/akinator_cfg.h"
 
 
@@ -15,8 +15,14 @@ static AkinatorError akinatorGetDefinitionStack(Akinator* akin, const wchar_t ms
                                                                 Stack* stk);
 
 #define OUTPUT_BUFFER_SIZE 165
-
-AkinatorError akinatorCompareDefinitions(Akinator* akin)
+/*
+def akinatorModeCompare():
+    getName()
+    getName()
+FIXME
+    compareDefinitions(stk1, stk2)
+*/
+AkinatorError akinatorStartModeCompare(Akinator* akin)
 {
     assert(akin);
 
@@ -24,6 +30,8 @@ AkinatorError akinatorCompareDefinitions(Akinator* akin)
 
     AkinatorError err = AKINATOR_ERR_NO;
     Stack stk[N_STK] = {};
+
+    // 
 	err = akinatorGetDefinitionStack(akin, L"Введите название первого объекта: ", &stk[0]);
     if (err != AKINATOR_ERR_NO)
     {
@@ -39,13 +47,11 @@ AkinatorError akinatorCompareDefinitions(Akinator* akin)
 
     int index[N_STK] = {};
     for (int i = 0; i < N_STK; i++)
-    {
         index[i] = stk[i].size;
-    }
 
     while(index[0] >= 0 && index[1] >= 0)
     {
-        int hasNot[2] = {};
+        int hasNot[N_STK] = {};
 
         for (int i = 0; i < N_STK; i++)
         {
@@ -60,7 +66,7 @@ AkinatorError akinatorCompareDefinitions(Akinator* akin)
         if (stk[0].data[index[0]] == stk[1].data[index[1]] && 
                        hasNot[0]  ==            hasNot[1]     )
         {
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < N_STK; i++)
                 index[i]--;
             continue;
         }
@@ -77,7 +83,7 @@ AkinatorError akinatorCompareDefinitions(Akinator* akin)
         putwchar(L'\n');
         break;
     }
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < N_STK; i++)
     {
         if (stackDtor(&stk[i]) != NO_ERROR)
             return AKINATOR_ERR_STACK;
@@ -86,7 +92,7 @@ AkinatorError akinatorCompareDefinitions(Akinator* akin)
 }
 
 
-AkinatorError akinatorGetDefinition(Akinator* akin)
+AkinatorError akinatorStartModeDefinition(Akinator* akin)
 {
     assert(akin);
 
@@ -108,7 +114,7 @@ AkinatorError akinatorGetDefinition(Akinator* akin)
         if (def == NOT_PREFIX)
         {
             akinatorSay(def);
-            wprintf(L"%ls ", def);
+            wprintf(L"%ls", def);
             if (stackPop(&defStack, &def) != NO_ERROR)
             {
                 stackDtor(&defStack);
@@ -129,9 +135,9 @@ AkinatorError akinatorGetDefinition(Akinator* akin)
         AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_STACK);
     }
     wprintf(L"и просто %ls\n", def);
-    return AKINATOR_ERR_NO;
-
     stackDtor(&defStack);
+
+    return AKINATOR_ERR_NO;
 }
 
 
@@ -169,8 +175,8 @@ static int akinatorPushDefinition_recursive(Stack* stk , const wchar_t* name,
 }
 
 
-static AkinatorError akinatorGetDefinitionStack(Akinator* akin, const wchar_t msg[],
-                                                                Stack* stk)
+static AkinatorError akinatorGetDefinitionStack(Akinator* akin, 
+                                                const wchar_t msg[], Stack* stk)
 {
     assert(akin);
     assert(stk);

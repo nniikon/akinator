@@ -7,7 +7,7 @@
 
 #include "../include/akinator_definition.h"
 #include "../include/akinator_dump.h"
-#include "../include/akinator_promts.h"
+#include "../include/akinator_prompts.h"
 #include "../include/akinator_saveLoad.h"
 
 // FIXME: add cmd args.
@@ -57,6 +57,7 @@ int main()
     }
 
     AkinatorOptions opt = AKIN_OPT_ERROR;
+    // bool?
     int gameOver = 0;
     while (!gameOver)
     {
@@ -68,27 +69,12 @@ int main()
         }
         switch (opt)
         {
-            case AKIN_OPT_GUESS:
-                akinatorQuestion(&akin, akin.tree.rootBranch, &err);
-                break;
-
-            case AKIN_OPT_DEFINITION:
-                err = akinatorGetDefinition(&akin);
-                break;
-
-            case AKIN_OPT_DUMP:
-                err = akinatorGenPng(&akin, 1);
-                break;
-
-            case AKIN_OPT_COMPARE:
-                err = akinatorCompareDefinitions(&akin);
-                break;
-
-            case AKIN_OPT_SAVE_QUIT:
-                err = akinatorSaveToFile(&akin);
-                [[fallthrough]];
-            case AKIN_OPT_FORCE_QUIT:
-                akinatorGoodbye();
+case AKIN_OPT_GUESS     : err = akinatorStartModeGuess     (&akin);    break;
+case AKIN_OPT_DEFINITION: err = akinatorStartModeDefinition(&akin);    break;
+case AKIN_OPT_DUMP      : err = akinatorStartModeDump      (&akin, 1); break;
+case AKIN_OPT_COMPARE   : err = akinatorStartModeCompare   (&akin);    break;
+case AKIN_OPT_SAVE_QUIT : err = akinatorSaveToFile         (&akin);
+case AKIN_OPT_FORCE_QUIT:       akinatorGoodbye();
                 gameOver = 1;
                 break;
 

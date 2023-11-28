@@ -14,7 +14,6 @@ void* dynArrCalloc(void* arr, unsigned int* capacity,
 
     if (*freeIndex == *capacity)
     {
-        // FIXME: fuck this idk it's unfixable
         return NULL;
         // unsigned int newCapacity = 0;
 

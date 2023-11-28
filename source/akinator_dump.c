@@ -6,7 +6,7 @@
 #include <sys/types.h>
 
 #include "../include/akinator_dump_cfg.h"
-#include "../include/akinator_promts.h"
+#include "../include/akinator_prompts.h"
 
 #define BUFFER_SIZE 50
 
@@ -67,7 +67,7 @@ static void akinatorPrintNodes(TreeNode* node, FILE* dotFile)
 }
 
 
-AkinatorError akinatorGenPng(Akinator* akin, int isLoud)
+AkinatorError akinatorStartModeDump(Akinator* akin, int isLoud)
 {
     akinatorMakeLogdir();
     if (akin == NULL)

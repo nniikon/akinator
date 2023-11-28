@@ -4,7 +4,7 @@
 
 #include "../include/akinator_tree_cfg.h"
 #include "../include/akinator_cfg.h"
-#include "../include/akinator_promts.h"
+#include "../include/akinator_prompts.h"
 
 
 #define AKINATOR_DUMP_RETURN_TREE_ERROR(err)                                  \
@@ -61,8 +61,7 @@ AkinatorError akinatorCtor(Akinator* akin, const char* database, FILE* dumpFile)
     akin->dumpFile     = dumpFile;
 
     AkinatorError akinErr = AKINATOR_ERR_NO;
-    StackError    stkErr  = NO_ERROR;
-    akin->nodeBuffer = (AkinatorNode*) dynArrCtor(&akin->nodeCapacity, 
+    akin->nodeBuffer = (AkinatorNode*) dynArrCtor(&akin->nodeCapacity,
                                     sizeof(AkinatorNode));
     if (akin->nodeBuffer == NULL)
     {
@@ -220,7 +219,8 @@ static AkinatorError akinatorVictory(Akinator* akin, TreeNode* node)
 }
 
 
-TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node, AkinatorError* err)
+static TreeNode* akinatorStartModeGuess_recursive(Akinator* akin,
+                                            TreeNode* node, AkinatorError* err)
 {
     if (*err != AKINATOR_ERR_NO)
         return NULL;
@@ -245,9 +245,9 @@ TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node, AkinatorError* err)
 			break;
 		case AKINATOR_NODE_QUESTION:
 			if (akinatorAskQuestion(akin, node, L"Ваш персонаж ", err) == 0)
-				return akinatorQuestion(akin, node->rightBranch, err);
+				return akinatorStartModeGuess_recursive(akin, node->rightBranch, err);
 			else
-				return akinatorQuestion(akin, node->leftBranch, err);
+				return akinatorStartModeGuess_recursive(akin, node->leftBranch, err);
 		default:
 			assert(0);
 			return NULL;
@@ -255,6 +255,12 @@ TreeNode* akinatorQuestion(Akinator* akin, TreeNode* node, AkinatorError* err)
 }
 
 
+AkinatorError akinatorStartModeGuess(Akinator* akin)
+{
+    AkinatorError err = AKINATOR_ERR_NO;
+    akinatorStartModeGuess_recursive(akin, akin->tree.rootBranch, &err);
+    return err;
+}
 
 
 

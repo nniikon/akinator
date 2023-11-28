@@ -91,7 +91,6 @@ AkinatorError akinatorLoad(Akinator* akin)
         fclose(dbFile);
         AKINATOR_DUMP_RETURN_ERROR(AKINATOR_ERR_BAD_FGETS);
     }
-    fwprintf(stderr, buffer);
 
     AkinatorError err = AKINATOR_ERR_NO;
     akin->tree.rootBranch = akinatorLoad_recursive(akin, &akin->tree, &buffer, &err);

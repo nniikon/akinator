@@ -4,7 +4,7 @@
 #include <wchar.h>
 #include "akinator.h"
 
-AkinatorError akinatorGetDefinition     (Akinator* akin);
-AkinatorError akinatorCompareDefinitions(Akinator* akin);
+AkinatorError akinatorStartModeDefinition     (Akinator* akin);
+AkinatorError akinatorStartModeCompare(Akinator* akin);
 
 #endif // AKINATOR_DEFINITION_H_

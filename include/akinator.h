@@ -38,10 +38,11 @@ typedef enum
 
 AkinatorError akinatorCtor       (Akinator* akin, const char* database, FILE* dumpFile);
 AkinatorError akinatorDtor       (Akinator* akin);
-TreeNode*     akinatorQuestion   (Akinator* akin, TreeNode* node, AkinatorError* err);
 AkinatorNode* akintorNodeCalloc  (Akinator* akin);
 wchar_t*      akinatorWordCalloc (Akinator* akin);
 const char*   akinatorGetErrorMsg(AkinatorError err);
+
+AkinatorError akinatorStartModeGuess(Akinator* akin);
 
 #define AKINATOR_DUMP_RETURN_ERROR(err)                                       \
     do                                                                        \
